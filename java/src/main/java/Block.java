@@ -69,6 +69,7 @@ public class Block {
         for (Iterator txn = transactions.iterator(); txn.hasNext(); ) {
             Transaction curr_txn = (Transaction) txn.next();
             //TODO calculate hash of transaction
+            currentHash = HashHelper.hashMessage((HashHelper.hashMessage(curr_txn.toString().getBytes())+ currentHash).getBytes());
         }
         return currentHash;
     }
@@ -89,12 +90,21 @@ public class Block {
          */
         String blockHash = "HASH";
         String transactionsHash = this.hashTransactions();
+        
+        BlockHeader bh = new BlockHeader();
+       
+        bh.setPayload_hash(this.hashTransactions());
+        bh.setTimestamp(this.when);
+        bh.setPrev_hash(getPrev_hash());
+        bh.setTotal_transactions(getTransactionCount());
+        
+        blockHash = HashHelper.hashMessage((transactionsHash+ bh.toString()).getBytes());
         return blockHash;
 
     }
 
     public boolean validate(){
-        return false;
+        return this.getHash().equals(this.hashBlock());
     }
 
     @Override
